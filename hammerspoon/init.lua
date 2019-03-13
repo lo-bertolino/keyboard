@@ -1,14 +1,22 @@
-local log = hs.logger.new('init.lua', 'debug')
+log = hs.logger.new("init.lua", "debug")
 
+hs.console.clearConsole()
 -- Use Control+` to reload Hammerspoon config
-hs.hotkey.bind({'ctrl'}, '`', nil, function()
-  hs.reload()
-end)
+
+hyper = {"cmd", "alt", "ctrl", "shift"}
+
+hs.hotkey.bind(
+  {"ctrl"},
+  "`",
+  nil,
+  function()
+    hs.notify.new({title = "Hammerspoon", informativeText = "Reloading... ⏳"}):send()
+    hs.reload()
+  end
+)
 
 keyUpDown = function(modifiers, key)
-  -- Un-comment & reload config to log each keystroke that we're triggering
   -- log.d('Sending keystroke:', hs.inspect(modifiers), key)
-
   hs.eventtap.keyStroke(modifiers, key, 0)
 end
 
@@ -21,23 +29,30 @@ end
 -- hotkey       - The hs.hotkey object to enable/disable.
 --
 -- Returns nothing.
-enableHotkeyForWindowsMatchingFilter = function(windowFilter, hotkey)
-  windowFilter:subscribe(hs.window.filter.windowFocused, function()
-    hotkey:enable()
-  end)
 
-  windowFilter:subscribe(hs.window.filter.windowUnfocused, function()
-    hotkey:disable()
-  end)
+enableHotkeyForWindowsMatchingFilter = function(windowFilter, hotkey)
+  windowFilter:subscribe(
+    hs.window.filter.windowFocused,
+    function()
+      hotkey:enable()
+    end
+  )
+
+  windowFilter:subscribe(
+    hs.window.filter.windowUnfocused,
+    function()
+      hotkey:disable()
+    end
+  )
 end
 
-require('keyboard.control-escape')
-require('keyboard.delete-words')
-require('keyboard.hyper')
-require('keyboard.markdown')
-require('keyboard.microphone')
-require('keyboard.panes')
-require('keyboard.super')
-require('keyboard.windows')
+require("keyboard.super")
+require("keyboard.apps")
+require("keyboard.windows")
+require("keyboard.numbers")
+require("keyboard.markdown")
+require("keyboard.iterm")
 
-hs.notify.new({title='Hammerspoon', informativeText='Ready to rock 🤘'}):send()
+log.d(hs.inspect(hs.eventtap.checkKeyboardModifiers()))
+
+hs.notify.new({title = "Hammerspoon", informativeText = "All set 😍"}):send()
